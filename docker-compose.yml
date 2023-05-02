@@ -1,0 +1,40 @@
+version: '3.4'
+services:
+    node1:
+        image: redis
+        volumes:
+          - ./redis.conf:/usr/local/etc/redis/redis.conf
+        ports: 
+            - 7001:7001
+            - 17001:17001
+        entrypoint: [redis-server, /usr/local/etc/redis/redis.conf, --port,"7001", --cluster-announce-ip,"${ip}"]
+
+    node2:
+        image: redis
+        volumes:
+          - ./redis.conf:/usr/local/etc/redis/redis.conf
+        ports: 
+            - 7002:7002
+            - 17002:17002
+        entrypoint: [redis-server, /usr/local/etc/redis/redis.conf, --port,"7002", --cluster-announce-ip,"${ip}"]
+
+    node3:
+        image: redis
+        volumes:
+          - ./redis.conf:/usr/local/etc/redis/redis.conf
+        ports: 
+            - 7003:7003
+            - 17003:17003
+        entrypoint: [redis-server, /usr/local/etc/redis/redis.conf, --port,"7003", --cluster-announce-ip,"${ip}"]
+
+    cluster-creator:
+        image: redis
+        volumes:
+          - ./redis.conf:/usr/local/etc/redis/redis.conf
+        # Running Redis cluster with only 3 nodes needs to set "--cluster-replicas 0".
+        # If --cluster-replicas are set to 1, the cluster should at least have 6 nodes.
+        entrypoint: [/bin/sh,-c,'echo "yes" | redis-cli --cluster create ${ip}:7001 ${ip}:7002 ${ip}:7003 --cluster-replicas 0']
+        depends_on: 
+          - node1 
+          - node2
+          - node3 
