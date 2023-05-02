@@ -1,5 +1,5 @@
-# Start the Redis Cluster
-ip=$(ipconfig getifaddr en0) docker-compose up -d
+# Start the Redis Cluster (Run in Background)
+docker-compose up -d
 
 # Stop the Redis Cluster
 docker-compose down
